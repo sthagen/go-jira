@@ -533,9 +533,10 @@ type GetQueryOptions struct {
 
 // GetWorklogsQueryOptions specifies the optional parameters for the Get Worklogs method
 type GetWorklogsQueryOptions struct {
-	StartAt    int64  `url:"startAt,omitempty"`
-	MaxResults int32  `url:"maxResults,omitempty"`
-	Expand     string `url:"expand,omitempty"`
+	StartAt      int64  `url:"startAt,omitempty"`
+	MaxResults   int32  `url:"maxResults,omitempty"`
+	StartedAfter int64  `url:"startedAfter,omitempty"`
+	Expand       string `url:"expand,omitempty"`
 }
 
 type AddWorklogQueryOptions struct {
@@ -716,6 +717,29 @@ func (s *IssueService) DeleteAttachmentWithContext(ctx context.Context, attachme
 // DeleteAttachment wraps DeleteAttachmentWithContext using the background context.
 func (s *IssueService) DeleteAttachment(attachmentID string) (*Response, error) {
 	return s.DeleteAttachmentWithContext(context.Background(), attachmentID)
+}
+
+// DeleteLinkWithContext deletes a link of a given linkID
+func (s *IssueService) DeleteLinkWithContext(ctx context.Context, linkID string) (*Response, error) {
+	apiEndpoint := fmt.Sprintf("rest/api/2/issueLink/%s", linkID)
+
+	req, err := s.client.NewRequestWithContext(ctx, "DELETE", apiEndpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := s.client.Do(req, nil)
+	if err != nil {
+		jerr := NewJiraError(resp, err)
+		return resp, jerr
+	}
+
+	return resp, nil
+}
+
+// DeleteLink wraps DeleteLinkWithContext using the background context.
+func (s *IssueService) DeleteLink(linkID string) (*Response, error) {
+	return s.DeleteLinkWithContext(context.Background(), linkID)
 }
 
 // GetWorklogsWithContext gets all the worklogs for an issue.
